@@ -3,8 +3,8 @@ Utility functions for the DEnsity-BAsed CLustering (DeBaCl) toolbox.
 """
 
 ## Required packages
-from __future__ import print_function as _print_function
-from __future__ import absolute_import as _absolute_import
+
+
 
 import logging as _logging
 
@@ -484,6 +484,6 @@ def reindex_cluster_labels(labels):
 
     unique_labels = _np.unique(labels[:, 1])
     label_map = {v: k for k, v in enumerate(unique_labels)}
-    new_labels = map(lambda x: label_map[x], labels[:, 1])
+    new_labels = [label_map[x] for x in labels[:, 1]]
     new_labels = _np.vstack((labels[:, 0], new_labels)).T
     return new_labels

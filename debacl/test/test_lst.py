@@ -1,6 +1,6 @@
 
-from __future__ import print_function as _print_function
-from __future__ import absolute_import as _absolute_import
+
+
 
 import os
 import unittest
@@ -58,26 +58,26 @@ class TestLSTConstructors(unittest.TestCase):
         self.assertTrue(isinstance(tree, dcl.level_set_tree.LevelSetTree))
 
         ## Check min and max density levels
-        start_levels = [x.start_level for x in tree.nodes.values()]
+        start_levels = [x.start_level for x in list(tree.nodes.values())]
         self.assertAlmostEqual(min(start_levels), 0.)
 
-        end_levels = [x.end_level for x in tree.nodes.values()]
+        end_levels = [x.end_level for x in list(tree.nodes.values())]
         self.assertAlmostEqual(max(end_levels), max(self.density))
 
         ## Check min and max masses
-        start_masses = [x.start_mass for x in tree.nodes.values()]
+        start_masses = [x.start_mass for x in list(tree.nodes.values())]
         self.assertAlmostEqual(min(start_masses), 0.)
 
-        end_masses = [x.end_mass for x in tree.nodes.values()]
+        end_masses = [x.end_mass for x in list(tree.nodes.values())]
         self.assertAlmostEqual(max(end_masses), 1.)
 
         ## Sum of root sizes should be the size of the input dataset.
-        root_sizes = [len(node.members) for node in tree.nodes.values()
+        root_sizes = [len(node.members) for node in list(tree.nodes.values())
                       if node.parent is None]
         self.assertEqual(sum(root_sizes), self.n)
 
         ## Check per-node plausibility
-        for idx, node in tree.nodes.items():
+        for idx, node in list(tree.nodes.items()):
 
             if idx == 0:
                 self.assertTrue(node.parent is None)
@@ -125,9 +125,9 @@ class TestLSTConstructors(unittest.TestCase):
 
         ## Density levels
         start_levels = [round(node.start_level, 3)
-                        for node in tree.nodes.values()]
+                        for node in list(tree.nodes.values())]
         end_levels = [round(node.end_level, 3)
-                      for node in tree.nodes.values()]
+                      for node in list(tree.nodes.values())]
 
         ans_start_levels = [0.0, 0.104, 0.104, 0.189, 0.189, 0.345, 0.345,
                             0.741, 0.741, 0.862, 0.862]
@@ -139,9 +139,9 @@ class TestLSTConstructors(unittest.TestCase):
 
         ## Masses
         start_masses = [round(node.start_mass, 3)
-                        for node in tree.nodes.values()]
+                        for node in list(tree.nodes.values())]
         end_masses = [round(node.end_mass, 3)
-                      for node in tree.nodes.values()]
+                      for node in list(tree.nodes.values())]
 
         ans_start_masses = [0.0, 0.018, 0.018, 0.079, 0.079, 0.293, 0.293,
                             0.667, 0.667, 0.816, 0.816]
@@ -152,8 +152,8 @@ class TestLSTConstructors(unittest.TestCase):
         self.assertItemsEqual(end_masses, ans_end_masses)
 
         ## Sizes and parents
-        sizes = [len(node.members) for node in tree.nodes.values()]
-        parents = [node.parent for node in tree.nodes.values()]
+        sizes = [len(node.members) for node in list(tree.nodes.values())]
+        parents = [node.parent for node in list(tree.nodes.values())]
 
         ans_sizes = [1000, 767, 215, 238, 472, 76, 23, 231, 12, 103, 48]
         ans_parents = [None, 0, 0, 1, 1, 3, 3, 4, 4, 7, 7]
@@ -263,7 +263,7 @@ class TestBackwardCompatibility(unittest.TestCase):
                              len(np.unique(partition[:, 0])))
             self.assertEqual(np.min(partition[:, 0]), 0)
             self.assertItemsEqual(np.unique(partition[:, 1]),
-                                  tree.nodes.keys())
+                                  list(tree.nodes.keys()))
 
             # save and load
             with tempfile.NamedTemporaryFile() as t:
@@ -271,8 +271,8 @@ class TestBackwardCompatibility(unittest.TestCase):
                 tree2 = dcl.load_tree(t.name)
 
                 self.assertItemsEqual(
-                    [x.start_level for x in tree.nodes.values()],
-                    [y.start_level for y in tree2.nodes.values()])
+                    [x.start_level for x in list(tree.nodes.values())],
+                    [y.start_level for y in list(tree2.nodes.values())])
 
 
 class TestLevelSetTree(unittest.TestCase):
@@ -317,23 +317,23 @@ class TestLevelSetTree(unittest.TestCase):
         self.assertTrue(isinstance(tree, dcl.level_set_tree.LevelSetTree))
 
         ## Check min and max density levels
-        start_levels = [x.start_level for x in tree.nodes.values()]
+        start_levels = [x.start_level for x in list(tree.nodes.values())]
         self.assertAlmostEqual(min(start_levels), 0.)
 
         ## Check min and max masses
-        start_masses = [x.start_mass for x in tree.nodes.values()]
+        start_masses = [x.start_mass for x in list(tree.nodes.values())]
         self.assertAlmostEqual(min(start_masses), 0.)
 
-        end_masses = [x.end_mass for x in tree.nodes.values()]
+        end_masses = [x.end_mass for x in list(tree.nodes.values())]
         self.assertAlmostEqual(max(end_masses), 1.)
 
         ## Sum of root sizes should be the size of the input dataset.
-        root_sizes = [len(node.members) for node in tree.nodes.values()
+        root_sizes = [len(node.members) for node in list(tree.nodes.values())
                       if node.parent is None]
         self.assertEqual(sum(root_sizes), self.n)
 
         ## Check per-node plausibility
-        for idx, node in tree.nodes.items():
+        for idx, node in list(tree.nodes.items()):
 
             if idx == 0:
                 self.assertTrue(node.parent is None)
@@ -377,7 +377,7 @@ class TestLevelSetTree(unittest.TestCase):
         """
         Check that tree printing in table form is working properly.
         """
-        print
+        print()
 
         try:
             self.tree
@@ -478,7 +478,7 @@ class TestLevelSetTree(unittest.TestCase):
         leaf_labels = self.tree.get_clusters(method='leaf')
         self._check_cluster_label_plausibility(leaf_labels)
 
-        leaves = [idx for idx, node in self.tree.nodes.items()
+        leaves = [idx for idx, node in list(self.tree.nodes.items())
                   if len(node.children) == 0]
 
         self.assertItemsEqual(np.unique(leaf_labels[:, 1]), leaves)
@@ -520,4 +520,4 @@ class TestLevelSetTree(unittest.TestCase):
 
         # Labels should match tree nodes exactly.
         self.assertItemsEqual(np.unique(partition[:, 1]),
-                              self.tree.nodes.keys())
+                              list(self.tree.nodes.keys()))

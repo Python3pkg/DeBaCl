@@ -53,8 +53,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'DeBaCl'
-copyright = u'2013-2016, Brian P. Kent'
+project = 'DeBaCl'
+copyright = '2013-2016, Brian P. Kent'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

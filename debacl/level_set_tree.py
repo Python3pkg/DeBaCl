@@ -5,8 +5,8 @@ methods for retrieving clusters and plotting.
 """
 
 ## Built-in packages
-from __future__ import print_function as _print_function
-from __future__ import absolute_import as _absolute_import
+
+
 
 import logging as _logging
 import copy as _copy
@@ -100,7 +100,7 @@ class LevelSetTree(object):
         """
         summary = _PrettyTable(["id", "start_level", "end_level", "start_mass",
                                 "end_mass", "size", "parent", "children"])
-        for node_id, v in self.nodes.items():
+        for node_id, v in list(self.nodes.items()):
             summary.add_row([node_id,
                              v.start_level,
                              v.end_level,
@@ -245,7 +245,7 @@ class LevelSetTree(object):
         if not isinstance(annotate_nodes, list):
             raise TypeError("The 'annotate_nodes' parameter must be a list.")
 
-        if not set(annotate_nodes).issubset(self.nodes.keys()):
+        if not set(annotate_nodes).issubset(list(self.nodes.keys())):
             raise ValueError("The 'annotate_nodes' parameter contains values " +
                              "that do not correspond to tree nodes. Valid " +
                              "node indices are found in the first column " +
@@ -255,7 +255,7 @@ class LevelSetTree(object):
         if not isinstance(color_nodes, list):
             raise TypeError("The 'color_nodes' parameter must be a list.")
 
-        if not set(color_nodes).issubset(self.nodes.keys()):
+        if not set(color_nodes).issubset(list(self.nodes.keys())):
             raise ValueError("The 'color_nodes' parameter contains values " +
                              "that do not correspond to tree nodes. Valid " +
                              "node indices are found in the first column " +
@@ -271,7 +271,7 @@ class LevelSetTree(object):
         split_coords = {}
 
         ## Find the root connected components and corresponding plot intervals
-        ix_root = _np.array([k for k, v in self.nodes.iteritems()
+        ix_root = _np.array([k for k, v in self.nodes.items()
                              if v.parent is None])
         n_root = len(ix_root)
         census = _np.array([len(self.nodes[x].members) for x in ix_root],
@@ -306,10 +306,10 @@ class LevelSetTree(object):
 
         ## Find the fraction of nodes in each segment (to use as line widths)
         node_widths = {k: max(min_node_width, 12.0 * len(node.members) / n)
-                       for k, node in self.nodes.items()}
+                       for k, node in list(self.nodes.items())}
 
         ## Get the relevant vertical ticks
-        primary_ticks = [(x[0][1], x[1][1]) for x in node_coords.values()]
+        primary_ticks = [(x[0][1], x[1][1]) for x in list(node_coords.values())]
         primary_ticks = _np.unique(_np.array(primary_ticks).flatten())
         primary_labels = [str(round(tick, 2)) for tick in primary_ticks]
 
@@ -331,15 +331,15 @@ class LevelSetTree(object):
 
         elif form == 'density':
             ax.set_ylabel("density level")
-            ymin = min([v.start_level for v in self.nodes.itervalues()])
-            ymax = max([v.end_level for v in self.nodes.itervalues()])
+            ymin = min([v.start_level for v in self.nodes.values()])
+            ymax = max([v.end_level for v in self.nodes.values()])
             yrange = ymax - ymin
             ax.set_ylim(ymin - gap * yrange, ymax + 0.05 * yrange)
 
         elif form == 'mass':
             ax.set_ylabel("mass level")
-            ymin = min([v.start_mass for v in self.nodes.itervalues()])
-            ymax = max([v.end_mass for v in self.nodes.itervalues()])
+            ymin = min([v.start_mass for v in self.nodes.values()])
+            ymax = max([v.end_mass for v in self.nodes.values()])
             yrange = ymax - ymin
             ax.set_ylim(ymin - gap * yrange, ymax + 0.05 * yrange)
 
@@ -347,27 +347,27 @@ class LevelSetTree(object):
             raise ValueError('Plot form not understood')
 
         ## Color the line segments.
-        node_colors = {k: [0.0, 0.0, 0.0, 1.0] for k, v in self.nodes.items()}
+        node_colors = {k: [0.0, 0.0, 0.0, 1.0] for k, v in list(self.nodes.items())}
         palette = _plt.get_cmap(colormap)
         colorset = palette(_np.linspace(0, 1, len(color_nodes)))
 
         for i, ix in enumerate(color_nodes):
             subtree = self._make_subtree(ix)
 
-            for ix_sub in subtree.nodes.keys():
+            for ix_sub in list(subtree.nodes.keys()):
                 node_colors[ix_sub] = list(colorset[i])
 
         ## Add the line segments to the figure.
-        line_coords = [node_coords[c] for c in node_coords.keys()]
-        line_widths = [node_widths[c] for c in node_coords.keys()]
-        line_colors = [node_colors[c] for c in node_coords.keys()]
+        line_coords = [node_coords[c] for c in list(node_coords.keys())]
+        line_widths = [node_widths[c] for c in list(node_coords.keys())]
+        line_colors = [node_colors[c] for c in list(node_coords.keys())]
 
         node_lines = _LineCollection(line_coords, linewidths=line_widths,
                                      colors=line_colors)
         ax.add_collection(node_lines)
 
-        line_coords = [split_coords[c] for c in split_coords.keys()]
-        line_colors = [node_colors[c] for c in split_coords.keys()]
+        line_coords = [split_coords[c] for c in list(split_coords.keys())]
+        line_colors = [node_colors[c] for c in list(split_coords.keys())]
 
         split_lines = _LineCollection(line_coords, colors=line_colors)
         ax.add_collection(split_lines)
@@ -509,7 +509,7 @@ class LevelSetTree(object):
         >>> print(leaves)
         [1, 5, 6]
         """
-        return [k for k, v in self.nodes.items() if v.children == []]
+        return [k for k, v in list(self.nodes.items()) if v.children == []]
 
     def branch_partition(self):
         """
@@ -541,7 +541,7 @@ class LevelSetTree(object):
         points = []
         labels = []
 
-        for ix, node in self.nodes.items():
+        for ix, node in list(self.nodes.items()):
             branch_members = node.members.copy()
 
             for ix_child in node.children:
@@ -604,16 +604,16 @@ class LevelSetTree(object):
         tree.prune_threshold = threshold
 
         ## remove small root branches
-        small_roots = [k for k, v in tree.nodes.iteritems()
+        small_roots = [k for k, v in tree.nodes.items()
                        if v.parent is None and len(v.members) <= threshold]
 
         for root in small_roots:
             root_tree = tree._make_subtree(root)
-            for ix in root_tree.nodes.iterkeys():
+            for ix in root_tree.nodes.keys():
                 del tree.nodes[ix]
 
         ## main pruning
-        parents = [k for k, v in tree.nodes.iteritems()
+        parents = [k for k, v in tree.nodes.items()
                    if len(v.children) >= 1]
         parents = _np.sort(parents)[::-1]
 
@@ -624,7 +624,7 @@ class LevelSetTree(object):
             kid_size = {k: len(tree.nodes[k].members) for k in parent.children}
 
             # count children larger than 'threshold'
-            n_bigkid = sum(_np.array(kid_size.values()) >= threshold)
+            n_bigkid = sum(_np.array(list(kid_size.values())) >= threshold)
 
             if n_bigkid == 0:
                 # update parent's end level and end mass
@@ -641,7 +641,7 @@ class LevelSetTree(object):
             elif n_bigkid == 1:
                 pass
                 # identify the big kid
-                ix_bigkid = [k for k, v in kid_size.iteritems()
+                ix_bigkid = [k for k, v in kid_size.items()
                              if v >= threshold][0]
                 bigkid = tree.nodes[ix_bigkid]
 
@@ -726,14 +726,14 @@ class LevelSetTree(object):
             Indices of tree nodes corresponding to foreground clusters.
         """
 
-        parents = _np.array([u for u, v in self.nodes.items()
+        parents = _np.array([u for u, v in list(self.nodes.items())
                              if len(v.children) > 0])
-        roots = [u for u, v in self.nodes.items() if v.parent is None]
+        roots = [u for u, v in list(self.nodes.items()) if v.parent is None]
         splits = [self.nodes[u].end_level for u in parents]
         order = _np.argsort(splits)
         star_parents = parents[order[:(k - len(roots))]]
 
-        children = [u for u, v in self.nodes.items() if v.parent is None]
+        children = [u for u, v in list(self.nodes.items()) if v.parent is None]
         for u in star_parents:
             children += self.nodes[u].children
 
@@ -787,7 +787,7 @@ class LevelSetTree(object):
 
         else:
             upper_level_set = _np.where(_np.array(self.density) > threshold)[0]
-            active_nodes = [k for k, v in self.nodes.iteritems()
+            active_nodes = [k for k, v in self.nodes.items()
                             if (v.start_level <= threshold and
                                 v.end_level > threshold)]
 
@@ -835,7 +835,7 @@ class LevelSetTree(object):
         """
 
         cut = self._find_K_cut(k)
-        nodes = [e for e, v in self.nodes.iteritems()
+        nodes = [e for e, v in self.nodes.items()
                  if v.start_level <= cut and v.end_level > cut]
 
         points = []
@@ -866,14 +866,14 @@ class LevelSetTree(object):
         for ix in active_nodes:
             subtree = self._make_subtree(ix)
 
-            max_end_level = max([v.end_level for v in subtree.nodes.values()])
-            max_end_mass = max([v.end_mass for v in subtree.nodes.values()])
+            max_end_level = max([v.end_level for v in list(subtree.nodes.values())])
+            max_end_mass = max([v.end_mass for v in list(subtree.nodes.values())])
 
             self.nodes[ix].end_level = max_end_level
             self.nodes[ix].end_mass = max_end_mass
             self.nodes[ix].children = []
 
-            for u in subtree.nodes.keys():
+            for u in list(subtree.nodes.keys()):
                 if u != ix:
                     del self.nodes[u]
 
@@ -896,25 +896,25 @@ class LevelSetTree(object):
         """
 
         ## Find the lowest level to cut at that has k or more clusters
-        starts = [v.start_level for v in self.nodes.itervalues()]
-        ends = [v.end_level for v in self.nodes.itervalues()]
+        starts = [v.start_level for v in self.nodes.values()]
+        ends = [v.end_level for v in self.nodes.values()]
         crits = _np.unique(starts + ends)
         nclust = {}
 
         for c in crits:
-            nclust[c] = len([e for e, v in self.nodes.iteritems()
+            nclust[c] = len([e for e, v in self.nodes.items()
                              if v.start_level <= c and v.end_level > c])
 
-        width = _np.max(nclust.values())
+        width = _np.max(list(nclust.values()))
 
-        if k in nclust.values():
-            cut = _np.min([e for e, v in nclust.iteritems() if v == k])
+        if k in list(nclust.values()):
+            cut = _np.min([e for e, v in nclust.items() if v == k])
         else:
             if width < k:
-                cut = _np.min([e for e, v in nclust.iteritems() if v == width])
+                cut = _np.min([e for e, v in nclust.items() if v == width])
             else:
-                ktemp = _np.min([v for v in nclust.itervalues() if v > k])
-                cut = _np.min([e for e, v in nclust.iteritems() if v == ktemp])
+                ktemp = _np.min([v for v in nclust.values() if v > k])
+                cut = _np.min([e for e, v in nclust.items() if v == ktemp])
 
         return cut
 
@@ -1039,8 +1039,8 @@ class LevelSetTree(object):
 
                 segmap += branch_segmap
                 splitmap += branch_splitmap
-                splits = dict(splits.items() + branch_splits.items())
-                segments = dict(segments.items() + branch_segs.items())
+                splits = dict(list(splits.items()) + list(branch_splits.items()))
+                segments = dict(list(segments.items()) + list(branch_segs.items()))
 
             ## find the middle of the children's x-position and make vertical
             #  segment ix
@@ -1183,8 +1183,8 @@ class LevelSetTree(object):
 
                 segmap += branch_segmap
                 splitmap += branch_splitmap
-                splits = dict(splits.items() + branch_splits.items())
-                segments = dict(segments.items() + branch_segs.items())
+                splits = dict(list(splits.items()) + list(branch_splits.items()))
+                segments = dict(list(segments.items()) + list(branch_segs.items()))
 
             ## find the middle of the children's x-position and make vertical
             ## segment ix
@@ -1380,14 +1380,14 @@ def construct_tree_from_graph(adjacency_list, density, prune_threshold=None,
 
         ## compute the mass after the current bg set is removed
         old_vcount = sum([x.number_of_nodes()
-                          for x in T._subgraphs.itervalues()])
+                          for x in T._subgraphs.values()])
         current_mass = 1. - ((old_vcount - len(bg)) / n)
 
         # loop through active components, i.e. subgraphs
         deactivate_keys = []     # subgraphs to deactivate at the iter end
         activate_subgraphs = {}  # new subgraphs to add at the end of the iter
 
-        for (k, H) in T._subgraphs.iteritems():
+        for (k, H) in T._subgraphs.items():
 
             ## remove nodes at the current level
             H.remove_nodes_from(bg)
